@@ -1,0 +1,39 @@
+require "yaml"
+
+Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# Vagrant configuration for base image #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+IMAGE = 'debian/stretch64'
+NODE  = 'vagrant-libvirt-base-box'
+
+Vagrant.configure(2) do |config|
+  config.vm.box = IMAGE
+  config.vm.define NODE do |node|
+    node.vm.hostname = NODE
+    node.vm.synced_folder './', '/vagrant', type: 'rsync'
+    node.vm.provider :libvirt do |kvm|
+      kvm.driver   = 'qemu'
+      kvm.cpus   = 1
+      kvm.memory = 512
+      kvm.storage_pool_name = "default"
+    end
+
+    node.vm.network :public_network,
+      :dev => "lxc-bridge",
+      :type => "bridge"
+  end
+
+  #
+  # Run Ansible from the Vagrant Host
+  #
+  config.vm.provision "ansible", run: "always" do |ansible|
+    ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/#{ENV['BOX_TO_GENERATE']}/playbook.yml"
+    ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
+    ansible.groups = {
+      "vagrant-box" => ["vagrant-libvirt-base-box"]
+    }
+  end
+end

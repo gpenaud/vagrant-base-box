@@ -1,0 +1,25 @@
+#! /bin/bash
+
+box_playbooks=(
+  "vagrant-boxes/base/with-dhcp"
+  "vagrant-boxes/base/no-dhcp"
+)
+
+for raw in ${box_playbooks[@]}; do
+  export BOX_TO_GENERATE=${raw}
+
+  shortened=${raw#*/}
+  playbook=${shortened//[\/]/-}
+
+  vagrant destroy -f
+  vagrant up
+  vagrant package --output ${playbook}.box
+  vagrant box add --force ${playbook} ${playbook}.box
+  rm -f ${playbook}.box
+done
+
+function finish {
+  echo "----> Clean all existing vagrant machines"
+  vagrant destroy -f $(vagrant global-status | egrep -o "^[0-9a-f]+")
+}
+trap finish INT EXIT

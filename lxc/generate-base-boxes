@@ -1,21 +1,20 @@
 #! /bin/bash
 
-box_playbooks=(
-  "vagrant-boxes/base/with-dhcp"
-  "vagrant-boxes/base/no-dhcp"
-)
+prefix=lxc
+export VAGRANT_CWD=Vagrantfiles
 
-for raw in ${box_playbooks[@]}; do
-  export BOX_TO_GENERATE=${raw}
-
-  shortened=${raw#*/}
-  playbook=${shortened//[\/]/-}
+for file in $(ls Vagrantfiles); do
+  box_name="${prefix}-${file}"
+  export VAGRANT_VAGRANTFILE=${file}
 
   vagrant destroy -f
   vagrant up
-  vagrant package --output ${playbook}.box
-  vagrant box add --force ${playbook} ${playbook}.box
-  rm -f ${playbook}.box
+
+  sudo chmod -R a+r /var/lib/libvirt/images/*
+
+  vagrant package --output ${box_name}.box
+  vagrant box add --force ${box_name} ${box_name}.box
+  rm -f ${box_name}.box
 done
 
 function finish {

@@ -4,7 +4,7 @@ prefix=libvirt
 export VAGRANT_CWD=Vagrantfiles
 
 for file in $(ls Vagrantfiles); do
-  box_name="libvirt-${file}"
+  box_name="${prefix}-${file}"
   export VAGRANT_VAGRANTFILE=${file}
 
   vagrant destroy -f

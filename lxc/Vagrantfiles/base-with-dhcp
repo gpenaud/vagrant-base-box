@@ -1,3 +1,4 @@
+#! /usr/bin/ruby
 require "yaml"
 
 Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
@@ -22,7 +23,7 @@ Vagrant.configure(2) do |config|
     # Run Ansible from the Vagrant Host
     #
     config.vm.provision "ansible", run: "always" do |ansible|
-      ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/#{ENV['BOX_TO_GENERATE']}/playbook.yml"
+      ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/vagrant-boxes/base/playbook.yml"
       ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
       ansible.groups = {
         "vagrant-box" => ["vagrant-lxc-base-box"]
@@ -30,3 +31,5 @@ Vagrant.configure(2) do |config|
     end
   end
 end
+
+

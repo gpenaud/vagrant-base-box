@@ -36,9 +36,5 @@ Vagrant.configure(2) do |config|
     ansible.groups = {
       "vagrant-box" => ["vagrant-libvirt-base-box"]
     }
-    ansible.extra_vars = {
-      dhcp: true,
-      generate_ssh_host_keys: true
-    }
   end
 end

@@ -1,16 +1,16 @@
 #! /bin/bash
 
 prefix=lxc
-export VAGRANT_CWD=Vagrantfiles
+export VAGRANT_CWD=vagrantfiles
+boxes=$(ls vagrantfiles)
+boxes=(debian-jessie)
 
-for file in $(ls Vagrantfiles); do
+for file in ${boxes[@]}; do
   box_name="${prefix}-${file}"
   export VAGRANT_VAGRANTFILE=${file}
 
   vagrant destroy -f
   vagrant up
-
-  sudo chmod -R a+r /var/lib/libvirt/images/*
 
   vagrant package --output ${box_name}.box
   vagrant box add --force ${box_name} ${box_name}.box

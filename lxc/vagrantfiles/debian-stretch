@@ -8,7 +8,7 @@ Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 IMAGE = 'debian/stretch64'
-NODE  = 'vagrant-lxc-base-box'
+NODE  = 'lxc-debian-stretch'
 
 Vagrant.configure(2) do |config|
   config.vm.box = IMAGE
@@ -26,10 +26,8 @@ Vagrant.configure(2) do |config|
       ansible.playbook    = "#{ENV['ANSIBLE_PERSONAL_PATH']}/playbooks/vagrant-boxes/base/playbook.yml"
       ansible.config_file = ENV['ANSIBLE_PERSONAL_CONFIG']
       ansible.groups = {
-        "vagrant-box" => ["vagrant-lxc-base-box"]
+        "vagrant-box" => ["lxc-debian-stretch"]
       }
     end
   end
 end
-
-

@@ -1,0 +1,52 @@
+#! /bin/bash
+
+PROVIDER=lxc
+DISTRIBUTION=debian
+VERSIONS=(jessie stretch)
+
+echo $DISTRIBUTIONS
+
+TEMP=`getopt -o d:,p:,v: --long distribution:,provider:,version: -n 'generate-base-boxes' -- "$@"`
+eval set -- "$TEMP"
+
+while true ; do
+    case "$1" in
+        -d|--distribution) DISTRIBUTION=$2 ; shift 2 ;;
+        -p|--provider) PROVIDER=$2 ; shift 2 ;;
+        -v|--version) VERSIONS=($2) ; shift 2 ;;
+        --) shift ; break ;;
+        *) echo "Internal error!" ; exit 1 ;;
+    esac
+done
+
+echo "generate-base-boxes:"
+echo "  - provider: ${PROVIDER}"
+echo "  - distribution: ${DISTRIBUTION}"
+echo "  - version: ${VERSIONS[@]}"
+echo ""
+
+for version_file in ${VERSIONS[@]}; do
+  file="providers/${PROVIDER}/${DISTRIBUTION}/${version_file}"
+
+  if [ ! -f "${file}" ]; then
+    echo "File ${file} does not exists - please check your filetree"; exit 1
+  fi
+
+  export VAGRANT_VAGRANTFILE=${file}
+
+  vagrant destroy -f
+  vagrant up
+
+  vagrant package --output ${box_name}.box
+  vagrant box add --force ${box_name} ${box_name}.box
+  rm -f ${box_name}.box
+done
+
+
+
+
+exit 0;
+
+export VAGRANT_CWD="${PROVIDER}"
+boxes=$(ls vagrantfiles)
+boxes=(debian-jessie)

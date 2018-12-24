@@ -1,0 +1,63 @@
+#! /bin/bash
+BRIDGE_NAME=lxc-bridge
+
+NC=$(tput sgr0)
+GR=$(tput setaf 2)
+YL=$(tput setaf 3)
+RD=$(tput setaf 1)
+
+pp(){
+  if [ "${1}" = "y" ]; then
+    echo "${YL}>>>${NC} ${2} - ${GR}OK${NC}"
+  elif [ "${1}" = "n" ]; then
+    echo "${YL}>>>${NC} ${2} - ${RD}FAILED${NC}"
+  fi
+}
+
+debian_packages=(ansible dnsmasq lxc)
+for package in ${debian_packages[@]}; do
+  dpkg -l | grep -q ${package} && {
+    pp y "debian package ${package} is installed"
+  } || {
+    pp n "debian package ${package} should be installed"
+  }
+done
+
+vagrant_plugins=(vagrant-lxc)
+for plugin in ${vagrant_plugins[@]}; do
+  vagrant plugin list | grep -q ${plugin} && {
+    pp y "vagrant plugin ${plugin} is installed"
+  } || {
+    pp n "vagrant plugin ${plugin} should be installed"
+  }
+done
+
+[ -f /etc/dnsmasq.d/lxc.conf ] && {
+  pp y "file /etc/dnsmasq.d/lxc.conf exists"
+} || {
+  pp n "file /etc/dnsmasq.d/lxc.conf should exists"
+}
+
+[ -f /etc/network/interfaces.d/${BRIDGE_NAME} ] && {
+  pp y "file /etc/network/interfaces.d/${BRIDGE_NAME} exists"
+} || {
+  pp n "file /etc/network/interfaces.d/${BRIDGE_NAME} should exists"
+}
+
+sudo brctl show | grep -q ${BRIDGE_NAME} && {
+  pp y "Interface ${BRIDGE_NAME} is within bridge"
+} || {
+  pp n "Interface ${BRIDGE_NAME} is not within bridge "
+}
+
+grep -q "10\.239\.0" /etc/dnsmasq.d/lxc.conf && {
+  pp y "dnmasq instance is configured on 10.239.0"
+} || {
+  pp n "dnmasq instance is not configured on 10.239.0"
+}
+
+grep -q "10\.239\.0" /etc/network/interfaces.d/lxc-bridge && {
+  pp y "lxc-bridge interface is configured on 10.239.0"
+} || {
+  pp n "lxc-bridge interface is not configured on 10.239.0"
+}

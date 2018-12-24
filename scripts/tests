@@ -11,6 +11,8 @@ pp(){
     echo "${YL}>>>${NC} ${2} - ${GR}OK${NC}"
   elif [ "${1}" = "n" ]; then
     echo "${YL}>>>${NC} ${2} - ${RD}FAILED${NC}"
+  elif [ "${1}" = "d" ]; then
+    echo "${YL}>>>${NC} ${2} - ${YL}DONE${NC}"
   fi
 }
 
@@ -60,4 +62,13 @@ grep -q "10\.239\.0" /etc/network/interfaces.d/lxc-bridge && {
   pp y "lxc-bridge interface is configured on 10.239.0"
 } || {
   pp n "lxc-bridge interface is not configured on 10.239.0"
+}
+
+grep -q "1" /proc/sys/net/ipv4/ip_forward && {
+  sudo iptables -P FORWARD ACCEPT
+  pp y "IP forward just enabled"
+} || {
+  sudo iptables -P FORWARD ACCEPT
+  sudo sysctl -w net.ipv4.ip_forward=1
+  pp d "IP forward just enabled through sysctl"
 }

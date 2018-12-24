@@ -27,6 +27,7 @@ echo ""
 
 for version_file in ${VERSIONS[@]}; do
   file="providers/${PROVIDER}/${DISTRIBUTION}/${version_file}"
+  box_name="${DISTRIBUTION}-${version_file}"
 
   if [ ! -f "${file}" ]; then
     echo "File ${file} does not exists - please check your filetree"; exit 1
@@ -42,11 +43,4 @@ for version_file in ${VERSIONS[@]}; do
   rm -f ${box_name}.box
 done
 
-
-
-
-exit 0;
-
-export VAGRANT_CWD="${PROVIDER}"
-boxes=$(ls vagrantfiles)
-boxes=(debian-jessie)
+exit 0
